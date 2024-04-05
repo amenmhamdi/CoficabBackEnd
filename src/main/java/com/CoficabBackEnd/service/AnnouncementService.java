@@ -34,7 +34,6 @@ public class AnnouncementService {
     @Autowired
     private NotificationService notificationService; // Inject NotificationService
 
-    
     public Announcement saveAnnouncement(Announcement announcement, User sender) {
         Formation formation = announcement.getFormation();
 
@@ -109,14 +108,14 @@ public class AnnouncementService {
         if (currentUser == null || currentUser.getFormations() == null || currentUser.getFormations().isEmpty()) {
             return Collections.emptyList(); // Return an empty list if the user or user's formations are null or empty
         }
-
+    
         List<Formation> formations = new ArrayList<>(currentUser.getFormations());
         List<Announcement> announcements = new ArrayList<>();
-
+    
         for (Formation formation : formations) {
             announcements.addAll(formation.getAnnouncements());
         }
-
+    
         return announcements;
     }
 
@@ -126,27 +125,31 @@ public class AnnouncementService {
             return; // No formation associated, no users to notify
         }
 
-        Set<User> users = formation.getUsers(); // Adjusted to use Set<User> instead of List<User>
+        // Get the users associated with the formation
+        Set<User> users = formation.getUsers();
 
         for (User user : users) {
-            Notification notification = new Notification();
-            String message = "";
-            switch (actionType) {
-                case "CREATE":
-                    message = "A new announcement has been made: " + announcement.getMessage();
-                    break;
-                case "UPDATE":
-                    message = "An announcement has been updated: " + announcement.getMessage();
-                    break;
-                case "DELETE":
-                    message = "An announcement has been deleted: " + announcement.getMessage();
-                    break;
-            }
+            // Check if the user is associated with the formation
+            if (user.getFormations().contains(formation)) {
+                Notification notification = new Notification();
+                String message = "";
+                switch (actionType) {
+                    case "CREATE":
+                        message = "A new announcement has been made: " + announcement.getMessage();
+                        break;
+                    case "UPDATE":
+                        message = "An announcement has been updated: " + announcement.getMessage();
+                        break;
+                    case "DELETE":
+                        message = "An announcement has been deleted: " + announcement.getMessage();
+                        break;
+                }
 
-            notification.setMessage(message);
-            notification.setSender(sender);
-            notification.setReceiver(user);
-            notificationService.addNotification(notification);
+                notification.setMessage(message);
+                notification.setSender(sender);
+                notification.setReceiver(user);
+                notificationService.addNotification(notification);
+            }
         }
     }
 

@@ -35,7 +35,7 @@ public class NotificationController {
 
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter streamNotifications() {
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(-1L); // Set timeout to -1 for infinite timeout
         emitters.put("unique_id", emitter); // You might want to generate unique ID for each client
         emitter.onCompletion(() -> emitters.remove("unique_id"));
         emitter.onTimeout(() -> emitters.remove("unique_id"));
