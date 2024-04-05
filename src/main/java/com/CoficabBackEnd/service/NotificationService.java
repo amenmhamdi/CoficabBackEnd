@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.CoficabBackEnd.controller.NotificationController;
 import com.CoficabBackEnd.entity.Notification;
 import com.CoficabBackEnd.repository.NotificationRepository;
 
@@ -12,10 +13,16 @@ import com.CoficabBackEnd.repository.NotificationRepository;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private NotificationController notificationController;
 
     @Autowired
     public NotificationService(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
+    }
+
+    @Autowired
+    public void setNotificationController(NotificationController notificationController) {
+        this.notificationController = notificationController;
     }
 
     public void markAllNotificationsAsRead(String receiverUsername) {
@@ -27,7 +34,9 @@ public class NotificationService {
     }
 
     public Notification addNotification(Notification notification) {
-        return notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+        notificationController.sendNotification(savedNotification);
+        return savedNotification;
     }
 
     public Notification getNotification(Long id) {

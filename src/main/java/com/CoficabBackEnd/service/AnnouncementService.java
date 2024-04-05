@@ -34,6 +34,7 @@ public class AnnouncementService {
     @Autowired
     private NotificationService notificationService; // Inject NotificationService
 
+    
     public Announcement saveAnnouncement(Announcement announcement, User sender) {
         Formation formation = announcement.getFormation();
 
@@ -66,12 +67,12 @@ public class AnnouncementService {
         if (announcement == null) {
             throw new RuntimeException("Announcement not found with id: " + id);
         }
-    
+
         // Update fields with values from updatedAnnouncement
         announcement.setMessage(updatedAnnouncement.getMessage());
         announcement.setDescription(updatedAnnouncement.getDescription());
         announcement.setTag(updatedAnnouncement.getTag());
-    
+
         // Update formation if provided in the updatedAnnouncement
         Formation updatedFormation = updatedAnnouncement.getFormation();
         if (updatedFormation != null) {
@@ -84,17 +85,15 @@ public class AnnouncementService {
                 announcement.setFormation(null); // Clear the formation if formationId is not provided
             }
         }
-    
+
         // Save the updated announcement
         Announcement savedAnnouncement = announcementRepository.save(announcement);
-    
+
         // Notify users associated with the formation about the updated announcement
         notifyUsers(savedAnnouncement, sender, "UPDATE");
-    
+
         return savedAnnouncement;
     }
-    
-    
 
     public void deleteAnnouncement(Long id, User sender) {
         Announcement deletedAnnouncement = getAnnouncementById(id);
