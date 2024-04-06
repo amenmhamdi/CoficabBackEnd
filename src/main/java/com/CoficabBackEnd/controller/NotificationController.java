@@ -32,6 +32,8 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
+    
+
     @PostMapping("/add")
     public ResponseEntity<Notification> addNotification(@RequestBody Notification notification) {
         Notification addedNotification = notificationService.addNotification(notification);
