@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.CoficabBackEnd.controller.NotificationController;
 import com.CoficabBackEnd.entity.Notification;
 import com.CoficabBackEnd.repository.NotificationRepository;
+import com.CoficabBackEnd.repository.UserRepository;
 
 @Service
 public class NotificationService {
@@ -32,12 +33,15 @@ public class NotificationService {
             notificationRepository.save(notification);
         }
     }
-
+    @Autowired
+    private UserRepository userRepository; // Assuming you have a UserRepository
+    
     public Notification addNotification(Notification notification) {
+        // Save the notification to the database
         Notification savedNotification = notificationRepository.save(notification);
-        notificationController.sendNotification(savedNotification);
         return savedNotification;
     }
+    
 
     public Notification getNotification(Long id) {
         return notificationRepository.findById(id).orElse(null);

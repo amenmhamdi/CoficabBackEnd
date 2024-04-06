@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,26 +30,6 @@ public class NotificationController {
     @Autowired
     public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-    }
-
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter streamNotifications() {
-        SseEmitter emitter = new SseEmitter(-1L); // Set timeout to -1 for infinite timeout
-        emitters.put("unique_id", emitter); // You might want to generate unique ID for each client
-        emitter.onCompletion(() -> emitters.remove("unique_id"));
-        emitter.onTimeout(() -> emitters.remove("unique_id"));
-        return emitter;
-    }
-
-    // Method to send notifications to clients
-    public void sendNotification(Notification notification) {
-        emitters.forEach((id, emitter) -> {
-            try {
-                emitter.send(notification);
-            } catch (Exception e) {
-                emitters.remove(id);
-            }
-        });
     }
 
     @PostMapping("/add")
