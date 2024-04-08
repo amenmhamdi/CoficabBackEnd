@@ -44,7 +44,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.cors(withDefaults());
         httpSecurity.csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests -> requests
-                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword").permitAll()
+                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword", "/sendVerificationCode", "/verifyVerificationCode").permitAll()
                         .antMatchers(HttpHeaders.ALLOW).permitAll()
                         .antMatchers("/users").permitAll() // Exclude /users from authentication
                         .antMatchers(HttpMethod.GET, "/user/checkEmailExists/**").permitAll() // Permit GET requests to checkEmailExists

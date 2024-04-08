@@ -1,8 +1,11 @@
 package com.CoficabBackEnd.service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
@@ -49,6 +52,8 @@ public class JwtService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     private static final org.jboss.logging.Logger logger = LoggerFactory.logger(JwtService.class);
+    private Map<String, String> verificationCodes = new HashMap<>();
+
     public JwtResponse createJwtToken(JwtRequest jwtRequest) throws Exception {
         String userName = jwtRequest.getUserName();
         String userPassword = jwtRequest.getUserPassword();
@@ -152,4 +157,30 @@ public class JwtService implements UserDetailsService {
     private boolean isTokenValid(LocalDateTime tokenExpiry) {
         return tokenExpiry != null && tokenExpiry.isAfter(LocalDateTime.now());
     }
+
+    public void sendLoginVerificationCode(String email) {
+        String code = generateRandomCode();
+        verificationCodes.put(email, code);
+        emailService.sendLoginVerificationCodeEmail(email, code);
+    }
+
+    public String generateRandomCode() {
+        return String.valueOf(1000 + new Random().nextInt(9000));
+    }
+
+    public boolean verifyVerificationCode(String email, String code) {
+        String storedCode = verificationCodes.get(email);
+        return code.equals(storedCode);
+    }
+
+    // New method to store verification code
+    public void storeVerificationCode(String email, String code) {
+        verificationCodes.put(email, code);
+    }
+
+    // New method to send verification code email
+    public void sendLoginVerificationCodeEmail(String email, String code) {
+        emailService.sendLoginVerificationCodeEmail(email, code);
+    }
+
 }
