@@ -99,7 +99,6 @@ public class UserController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
 
     @PutMapping("/updateUnverif/{username}")
     @PreAuthorize("hasRole('Admin') or hasRole('HR-manager')")
@@ -122,5 +121,10 @@ public class UserController {
         return userService.getVerifiedUsers();
     }
 
-    
+    @GetMapping("/checkEmailExists/{email}")
+    public ResponseEntity<Boolean> checkEmailExists(@PathVariable String email) {
+        boolean emailExists = userService.isEmailExists(email);
+        return ResponseEntity.ok(emailExists);
+    }
+
 }

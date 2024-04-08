@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -43,9 +44,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.cors(withDefaults());
         httpSecurity.csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests -> requests
-                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword", "/notifications/stream").permitAll()
+                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword").permitAll()
                         .antMatchers(HttpHeaders.ALLOW).permitAll()
                         .antMatchers("/users").permitAll() // Exclude /users from authentication
+                        .antMatchers(HttpMethod.GET, "/user/checkEmailExists/**").permitAll() // Permit GET requests to checkEmailExists
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

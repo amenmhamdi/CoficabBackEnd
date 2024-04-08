@@ -214,4 +214,8 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public boolean isEmailExists(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
 }
