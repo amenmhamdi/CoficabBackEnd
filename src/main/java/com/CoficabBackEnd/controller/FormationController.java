@@ -108,7 +108,6 @@ public class FormationController {
         response.put("users", users);
         return ResponseEntity.ok(response);
     }
-
     @GetMapping("/exportICalendar/{formationId}")
     public ResponseEntity<String> exportICalendar(@PathVariable Long formationId) {
         Formation formation = formationService.getFormation(formationId); // Retrieve the specific formation
@@ -116,13 +115,17 @@ public class FormationController {
             return ResponseEntity.notFound().build(); // Return 404 if formation not found
         }
         String iCalendarData = generateICalendarData(formation); // Generate iCalendar data for the formation
+        
+        // Set filename with formation title and ID
+        String filename = "formation_" + formation.getTitle() + "_" + formationId + ".ics";
+        
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.TEXT_PLAIN);
-        headers.setContentDispositionFormData("filename", "formation_" + formationId + ".ics"); // Set filename for
-                                                                                                // download
+        headers.setContentDispositionFormData("filename", filename); // Set filename for download
+        
         return new ResponseEntity<>(iCalendarData, headers, HttpStatus.OK);
     }
-
+    
     // Method to generate iCalendar data for a specific formation
     // Method to generate iCalendar data for a specific formation
     private String generateICalendarData(Formation formation) {
