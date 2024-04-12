@@ -3,6 +3,7 @@ package com.CoficabBackEnd.entity;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +25,8 @@ public class Formation {
 	private Long fid;
 
 	private String title;
+
+	@Column(length = 1000) 
 	private String description;
 
 	private String startDate;
@@ -31,14 +34,14 @@ public class Formation {
 	private String location;
 	private String trainer;
 	private String createdBy;
-	private String formationType; // Add this field
-	private String startTime; // Added start time field
-	private String endTime; // Added end time field
-	private String registrationDeadline; // Added registration deadline field
-	private String status; // Added status field
-	private boolean visibility = false; // Changed visibility field to boolean with default value false
-	private int capacity; // Added capacity field
-	private String company; // Added facilitator field
+	private String formationType;
+	private String startTime;
+	private String endTime;
+	private String registrationDeadline;
+	private String status;
+	private boolean visibility = false;
+	private int capacity;
+	private String company;
 
 	@ManyToMany
 	@JoinTable(name = "user_formation", joinColumns = @JoinColumn(name = "formation_id"), inverseJoinColumns = @JoinColumn(name = "user_name"))
@@ -181,8 +184,6 @@ public class Formation {
 		this.status = status;
 	}
 
-	
-
 	public int getCapacity() {
 		return capacity;
 	}
@@ -206,8 +207,5 @@ public class Formation {
 	public void setVisibility(boolean visibility) {
 		this.visibility = visibility;
 	}
-
-	
-	
 
 }

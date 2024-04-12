@@ -29,7 +29,7 @@ public class User {
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
-    // New profile fields
+    // New profile fields  
     private String dateOfBirth;
     private String gender;
     private String jobTitle;

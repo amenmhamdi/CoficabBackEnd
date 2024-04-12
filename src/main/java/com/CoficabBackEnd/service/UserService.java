@@ -18,6 +18,7 @@ import com.CoficabBackEnd.entity.Role;
 import com.CoficabBackEnd.entity.User;
 import com.CoficabBackEnd.repository.EvaluationRepository;
 import com.CoficabBackEnd.repository.FormationRepository;
+import com.CoficabBackEnd.repository.RoleRepository;
 import com.CoficabBackEnd.repository.UserRepository;
 
 @Service
@@ -27,9 +28,11 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private FormationRepository formationRepository; // Add this field
+    private FormationRepository formationRepository;
     @Autowired
-    private EvaluationRepository evaluationRepository; // Add this field
+    private EvaluationRepository evaluationRepository;
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private UserDao userDao;
@@ -55,6 +58,7 @@ public class UserService {
         adminUser.setUserName("admin123");
         adminUser.setUserPassword(getEncodedPassword("admin@pass"));
         adminUser.setUserFirstName("admin");
+        adminUser.setEmail("mhamdiamenallah666@gmail.com");
         adminUser.setUserLastName("admin");
         adminUser.setVerif(true);
         adminUser.setRole(adminRole); // Assigning the admin role directly
@@ -115,7 +119,7 @@ public class UserService {
     public User updateUser(User updatedUser) {
         // Fetch the existing user from the database
         User existingUser = userRepository.findByUserName(updatedUser.getUserName());
-
+    
         if (existingUser != null) {
             // Update the user fields
             existingUser.setUserFirstName(updatedUser.getUserFirstName());
@@ -133,15 +137,26 @@ public class UserService {
             existingUser.setHireDate(updatedUser.getHireDate());
             existingUser.setExperience(updatedUser.getExperience());
             existingUser.setSocialMediaLinks(updatedUser.getSocialMediaLinks());
-            existingUser.setRole(updatedUser.getRole());
-
+    
+            // Update the role only if it's not null in the updatedUser object
+            if (updatedUser.getRole() != null) {
+                // Ensure that the role is already persisted in the database
+                Role persistedRole = roleRepository.findByRoleName(updatedUser.getRole().getRoleName());
+                if (persistedRole != null) {
+                    existingUser.setRole(persistedRole);
+                } else {
+                    throw new RuntimeException("Role not found");
+                }
+            }
+    
             // Save the updated user
             return userRepository.save(existingUser);
         } else {
             throw new RuntimeException("User not found");
         }
     }
-
+    
+    
     public void deleteRole(String roleName) {
         Role role = roleDao.findById(roleName).orElseThrow(null);
         roleDao.delete(role);
