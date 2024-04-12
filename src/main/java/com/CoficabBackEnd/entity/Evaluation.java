@@ -23,9 +23,7 @@ public class Evaluation {
     private String status;
 	private String createdBy;
 
-    @ManyToOne
-    private User user;
-
+ 
     @ManyToOne
     @JoinColumn(name = "formation_id")
     private Formation formation;
@@ -71,13 +69,7 @@ public class Evaluation {
         this.status = status;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+   
 
     public Formation getFormation() {
         return formation;

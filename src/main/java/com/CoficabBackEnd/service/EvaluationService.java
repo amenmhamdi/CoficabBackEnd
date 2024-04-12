@@ -114,9 +114,7 @@ public class EvaluationService {
         notifyUsers(formation, evaluation, sender, "DELETE");
     }
 
-    public List<Evaluation> getEvaluationsByUsername(String userName) {
-        return evaluationRepository.findByUserUserName(userName);
-    }
+ 
 
     // Method to get evaluations by formation ID
     public List<Evaluation> getEvaluationsByFormationId(Long formationId) {

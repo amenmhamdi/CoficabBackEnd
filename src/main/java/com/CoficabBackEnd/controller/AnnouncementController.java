@@ -60,6 +60,12 @@ public class AnnouncementController {
         return new ResponseEntity<>(createdAnnouncement, HttpStatus.CREATED);
     }
 
+    @GetMapping("/formation/{formationId}")
+    public ResponseEntity<List<Announcement>> getAnnouncementsForFormation(@PathVariable Long formationId) {
+        List<Announcement> announcements = announcementService.getAnnouncementsForFormation(formationId);
+        return new ResponseEntity<>(announcements, HttpStatus.OK);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Announcement> updateAnnouncement(@PathVariable("id") Long id,
             @RequestBody Announcement updatedAnnouncement, Principal principal) {

@@ -3,7 +3,9 @@ package com.CoficabBackEnd.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,22 +38,22 @@ public class AnnouncementService {
 
     public Announcement saveAnnouncement(Announcement announcement, User sender) {
         Formation formation = announcement.getFormation();
-    
+
         if (formation != null) {
             Long formationId = formation.getFid();
             formation = formationRepository.findById(formationId)
                     .orElseThrow(() -> new RuntimeException("Formation not found with id: " + formationId));
             announcement.setFormation(formation);
         }
-    
+
         Announcement savedAnnouncement = announcementRepository.save(announcement);
-    
+
         // Notify users associated with the formation about the new announcement
         notifyUsers(savedAnnouncement, sender, "CREATE");
-    
+
         return savedAnnouncement;
     }
-    
+
     public List<Announcement> getAllAnnouncements() {
         return announcementRepository.findAll();
     }
@@ -60,18 +62,18 @@ public class AnnouncementService {
         return announcementRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Announcement not found with id: " + id));
     }
-   
+
     public Announcement updateAnnouncement(Long id, Announcement updatedAnnouncement, User sender) {
         Announcement announcement = getAnnouncementById(id);
         if (announcement == null) {
             throw new RuntimeException("Announcement not found with id: " + id);
         }
-    
+
         // Update fields with values from updatedAnnouncement
         announcement.setMessage(updatedAnnouncement.getMessage());
         announcement.setDescription(updatedAnnouncement.getDescription());
         announcement.setTag(updatedAnnouncement.getTag());
-    
+
         // Update formation if provided in the updatedAnnouncement
         Formation updatedFormation = updatedAnnouncement.getFormation();
         if (updatedFormation != null) {
@@ -84,39 +86,53 @@ public class AnnouncementService {
                 announcement.setFormation(null); // Clear the formation if formationId is not provided
             }
         }
-    
+
         // Save the updated announcement
         Announcement savedAnnouncement = announcementRepository.save(announcement);
-    
+
         // Notify users associated with the formation about the updated announcement
         notifyUsers(savedAnnouncement, sender, "UPDATE");
-    
+
         return savedAnnouncement;
     }
-    
+
     public void deleteAnnouncement(Long id, User sender) {
         Announcement deletedAnnouncement = getAnnouncementById(id);
         if (deletedAnnouncement != null) {
-    
+
             // Notify users associated with the formation about the deleted announcement
             notifyUsers(deletedAnnouncement, sender, "DELETE");
-    
+
             announcementRepository.deleteById(id);
         }
     }
+
     public List<Announcement> getAllAnnouncementsForCurrentUser(User currentUser) {
         if (currentUser == null || currentUser.getFormations() == null || currentUser.getFormations().isEmpty()) {
             return Collections.emptyList(); // Return an empty list if the user or user's formations are null or empty
         }
-    
+
         List<Formation> formations = new ArrayList<>(currentUser.getFormations());
         List<Announcement> announcements = new ArrayList<>();
-    
+
         for (Formation formation : formations) {
             announcements.addAll(formation.getAnnouncements());
         }
-    
+
         return announcements;
+    }
+
+    public List<Announcement> getAnnouncementsForFormation(Long formationId) {
+        // Find the formation by ID
+        Optional<Formation> formationOptional = formationRepository.findById(formationId);
+
+        if (formationOptional.isPresent()) {
+            Formation formation = formationOptional.get();
+            // Convert the set of announcements to a list
+            return formation.getAnnouncements().stream().collect(Collectors.toList());
+        } else {
+            throw new RuntimeException("Formation not found with id: " + formationId);
+        }
     }
 
     private void notifyUsers(Announcement announcement, User sender, String actionType) {

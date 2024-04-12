@@ -1,7 +1,6 @@
 package com.CoficabBackEnd.service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.CoficabBackEnd.dao.RoleDao;
 import com.CoficabBackEnd.dao.UserDao;
-import com.CoficabBackEnd.entity.Evaluation;
 import com.CoficabBackEnd.entity.Formation;
 import com.CoficabBackEnd.entity.Role;
 import com.CoficabBackEnd.entity.User;
@@ -119,7 +117,7 @@ public class UserService {
     public User updateUser(User updatedUser) {
         // Fetch the existing user from the database
         User existingUser = userRepository.findByUserName(updatedUser.getUserName());
-    
+
         if (existingUser != null) {
             // Update the user fields
             existingUser.setUserFirstName(updatedUser.getUserFirstName());
@@ -137,7 +135,7 @@ public class UserService {
             existingUser.setHireDate(updatedUser.getHireDate());
             existingUser.setExperience(updatedUser.getExperience());
             existingUser.setSocialMediaLinks(updatedUser.getSocialMediaLinks());
-    
+
             // Update the role only if it's not null in the updatedUser object
             if (updatedUser.getRole() != null) {
                 // Ensure that the role is already persisted in the database
@@ -148,15 +146,14 @@ public class UserService {
                     throw new RuntimeException("Role not found");
                 }
             }
-    
+
             // Save the updated user
             return userRepository.save(existingUser);
         } else {
             throw new RuntimeException("User not found");
         }
     }
-    
-    
+
     public void deleteRole(String roleName) {
         Role role = roleDao.findById(roleName).orElseThrow(null);
         roleDao.delete(role);
@@ -173,16 +170,7 @@ public class UserService {
             formationRepository.save(formation); // Save the formation to update changes
         }
 
-        // Clear the list of formations associated with the user
-        user.getFormations().clear();
 
-        // Delete all evaluations associated with the user
-        Set<Evaluation> evaluations = user.getEvaluations();
-        for (Evaluation evaluation : evaluations) {
-            evaluation.setUser(null); // Remove reference to the user
-            evaluationRepository.save(evaluation); // Save the evaluation to update changes
-        }
-        evaluations.clear(); // Clear the list of evaluations associated with the user
 
         // Finally, delete the user
         userRepository.delete(user);

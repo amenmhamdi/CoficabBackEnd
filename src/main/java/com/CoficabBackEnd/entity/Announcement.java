@@ -2,6 +2,7 @@ package com.CoficabBackEnd.entity;
 
 import java.time.LocalDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,6 +23,7 @@ public class Announcement {
     private String createdBy;
     private LocalDateTime createdAt; // Field for time of creation
     private String tag; // Field for tag
+    @Column(length = 1000)
     private String description; // Field for description
     @ManyToOne
     @JoinColumn(name = "formation_id") // Make sure the correct column name is specified

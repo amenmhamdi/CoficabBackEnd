@@ -9,8 +9,6 @@ import com.CoficabBackEnd.entity.Evaluation;
 @Repository
 public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
 
-    // Custom query method to find evaluations by username
-    List<Evaluation> findByUserUserName(String userName); // Corrected method name
 
     // Custom query method to find evaluations by formation ID
     List<Evaluation> findByFormationFid(Long formationId); // Adjusted method name

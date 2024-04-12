@@ -4,14 +4,12 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,7 +27,7 @@ public class User {
     private String resetToken;
     private LocalDateTime resetTokenExpiry;
 
-    // New profile fields  
+    // New profile fields
     private String dateOfBirth;
     private String gender;
     private String jobTitle;
@@ -50,11 +48,6 @@ public class User {
     @JsonIgnore
     private Set<Formation> formations = new LinkedHashSet<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // Add cascade type
-    @JsonIgnore
-    private Set<Evaluation> evaluations = new LinkedHashSet<>();
-    
-
     public Set<Formation> getFormations() {
         return formations;
     }
@@ -63,13 +56,6 @@ public class User {
         this.formations = formations;
     }
 
-    public Set<Evaluation> getEvaluations() {
-        return evaluations;
-    }
-
-    public void setEvaluations(Set<Evaluation> evaluations) {
-        this.evaluations = evaluations;
-    }
 
     public String getResetToken() {
         return resetToken;
@@ -240,8 +226,5 @@ public class User {
     public void setSocialMediaLinks(String socialMediaLinks) {
         this.socialMediaLinks = socialMediaLinks;
     }
-
-
-
 
 }

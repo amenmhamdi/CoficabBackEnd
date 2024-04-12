@@ -79,10 +79,6 @@ public class EvaluationController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/user/{userName}") // Endpoint to get evaluations by username
-    public List<Evaluation> getEvaluationsByUsername(@PathVariable String userName) {
-        return evaluationRepository.findByUserUserName(userName);
-    }
 
     @GetMapping("/formation/{formationId}") // Endpoint to get evaluations by formation ID
     public List<Evaluation> getEvaluationsByFormationId(@PathVariable Long formationId) {
