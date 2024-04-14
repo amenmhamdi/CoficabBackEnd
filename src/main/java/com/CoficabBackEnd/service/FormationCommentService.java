@@ -1,11 +1,15 @@
 package com.CoficabBackEnd.service;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.CoficabBackEnd.dao.FormationCommentWithUserDTO;
 import com.CoficabBackEnd.entity.FormationComment;
+import com.CoficabBackEnd.entity.User;
 import com.CoficabBackEnd.repository.FormationCommentRepository;
 
 @Service
@@ -19,6 +23,7 @@ public class FormationCommentService {
     }
 
     public FormationComment addComment(FormationComment comment) {
+        comment.setTimestamp(LocalDateTime.now());
         return formationCommentRepository.save(comment);
     }
 
@@ -46,8 +51,16 @@ public class FormationCommentService {
         formationCommentRepository.deleteById(commentId);
     }
 
-    public List<FormationComment> findByFormationFid(Long fid) {
-        return formationCommentRepository.findByFormationFid(fid);
+    public List<FormationCommentWithUserDTO> findByFormationFidWithUser(Long fid) {
+        List<FormationComment> comments = formationCommentRepository.findByFormationFid(fid);
+        List<FormationCommentWithUserDTO> commentsWithUser = new ArrayList<>();
+        for (FormationComment comment : comments) {
+            User user = comment.getUser();
+            FormationCommentWithUserDTO commentWithUser = new FormationCommentWithUserDTO(comment, user);
+            commentsWithUser.add(commentWithUser);
+        }
+
+        return commentsWithUser;
     }
 
     public List<FormationComment> findByUserUserName(String userName) {

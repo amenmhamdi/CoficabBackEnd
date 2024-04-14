@@ -3,6 +3,7 @@ package com.CoficabBackEnd.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,9 +12,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.CoficabBackEnd.dao.FormationCommentWithUserDTO;
+import com.CoficabBackEnd.entity.Formation;
 import com.CoficabBackEnd.entity.FormationComment;
+import com.CoficabBackEnd.entity.User;
+import com.CoficabBackEnd.repository.FormationRepository;
+import com.CoficabBackEnd.repository.UserRepository;
 import com.CoficabBackEnd.service.FormationCommentService;
 
 @RestController
@@ -22,12 +29,42 @@ public class FormationCommentController {
 
     @Autowired
     private FormationCommentService formationCommentService;
+    @Autowired
+    private FormationRepository formationRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     // Add formation comment
     @PostMapping("/addComment")
-    public ResponseEntity<FormationComment> addComment(@RequestBody FormationComment comment) {
-        FormationComment addedComment = this.formationCommentService.addComment(comment);
-        return ResponseEntity.ok(addedComment);
+    public ResponseEntity<FormationComment> addComment(@RequestParam Long formationId, @RequestParam String username,
+            @RequestBody FormationComment comment) {
+        try {
+            // Retrieve Formation object using FormationRepository
+            Formation formation = formationRepository.findById(formationId).orElse(null);
+
+            // Retrieve User object using UserRepository
+            User user = userRepository.findByUserName(username);
+
+            // Check if either Formation or User object is null
+            if (formation == null || user == null) {
+                // Handle the case where either Formation or User object is null
+                return ResponseEntity.badRequest().build(); // Return a bad request response
+            }
+
+            // Set Formation and User objects in the comment
+            comment.setFormation(formation);
+            comment.setUser(user);
+
+            // Save the comment with updated fields
+            FormationComment addedComment = this.formationCommentService.addComment(comment);
+
+            return ResponseEntity.ok(addedComment);
+        } catch (Exception e) {
+            // Log the exception for debugging purposes
+            e.printStackTrace();
+            // Return an internal server error response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // Get formation comment by ID
@@ -52,8 +89,9 @@ public class FormationCommentController {
 
     // Get comments by formation ID
     @GetMapping("/formationComments/{formationId}")
-    public List<FormationComment> getFormationComments(@PathVariable("formationId") Long formationId) {
-        return this.formationCommentService.findByFormationFid(formationId);
+    public List<FormationCommentWithUserDTO> getFormationCommentsWithUser(
+            @PathVariable("formationId") Long formationId) {
+        return this.formationCommentService.findByFormationFidWithUser(formationId);
     }
 
     // Get comments by user name
