@@ -4,16 +4,30 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 @Entity
+@Table(name = "users")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+
 public class User {
 
     @Id
@@ -37,6 +51,10 @@ public class User {
     private String employeeId = generateEmployeeId();
     private String hireDate;
     private String experience;
+    
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_data_id")
+    private ImageData imageData;
 
     private String socialMediaLinks;
 
@@ -48,6 +66,7 @@ public class User {
     @JsonIgnore
     private Set<Formation> formations = new LinkedHashSet<>();
 
+    
     public Set<Formation> getFormations() {
         return formations;
     }
@@ -55,7 +74,6 @@ public class User {
     public void setFormations(Set<Formation> formations) {
         this.formations = formations;
     }
-
 
     public String getResetToken() {
         return resetToken;
@@ -226,5 +244,7 @@ public class User {
     public void setSocialMediaLinks(String socialMediaLinks) {
         this.socialMediaLinks = socialMediaLinks;
     }
+
+    
 
 }
