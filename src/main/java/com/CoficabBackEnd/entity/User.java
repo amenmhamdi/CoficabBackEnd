@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -52,9 +51,10 @@ public class User {
     private String hireDate;
     private String experience;
     
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "image_data_id")
+    @OneToOne(fetch = FetchType.EAGER)
+    @JsonIgnore
     private ImageData imageData;
+    
 
     private String socialMediaLinks;
 

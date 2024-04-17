@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.CoficabBackEnd.dao.FormationCommentWithUserDTO;
+import com.CoficabBackEnd.entity.Formation;
 import com.CoficabBackEnd.entity.FormationComment;
 import com.CoficabBackEnd.entity.User;
 import com.CoficabBackEnd.repository.FormationCommentRepository;
@@ -56,7 +57,7 @@ public class FormationCommentService {
         List<FormationCommentWithUserDTO> commentsWithUser = new ArrayList<>();
         for (FormationComment comment : comments) {
             User user = comment.getUser();
-            FormationCommentWithUserDTO commentWithUser = new FormationCommentWithUserDTO(comment, user);
+            FormationCommentWithUserDTO commentWithUser = new FormationCommentWithUserDTO(comment, user, null);
             commentsWithUser.add(commentWithUser);
         }
 
@@ -71,7 +72,16 @@ public class FormationCommentService {
         return formationCommentRepository.findByFormationFidIn(fids);
     }
 
-    public List<FormationComment> getAllComments() {
-        return formationCommentRepository.findAll();
+    public List<FormationCommentWithUserDTO> getAllComments() {
+        List<FormationComment> comments = formationCommentRepository.findAll();
+        List<FormationCommentWithUserDTO> commentsWithUsers = new ArrayList<>();
+        for (FormationComment comment : comments) {
+            User user = comment.getUser(); // Fetch the user associated with the comment
+            Formation formation = comment.getFormation(); // Fetch the formation associated with the comment
+            FormationCommentWithUserDTO commentWithUser = new FormationCommentWithUserDTO(comment, user, formation);
+            commentsWithUsers.add(commentWithUser);
+        }
+        return commentsWithUsers;
     }
+
 }

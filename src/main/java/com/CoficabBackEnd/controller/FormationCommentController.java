@@ -102,8 +102,9 @@ public class FormationCommentController {
 
     // Get all comments
     @GetMapping("/allComments")
-    public List<FormationComment> getAllComments() {
+    public List<FormationCommentWithUserDTO> getAllComments() {
         return this.formationCommentService.getAllComments();
     }
+    
 
 }

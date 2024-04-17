@@ -120,7 +120,7 @@ public class UserService {
     public User updateUser(User updatedUser) {
         // Fetch the existing user from the database
         User existingUser = userRepository.findByUserName(updatedUser.getUserName());
-    
+
         if (existingUser != null) {
             // Update the user fields
             existingUser.setUserFirstName(updatedUser.getUserFirstName());
@@ -138,7 +138,7 @@ public class UserService {
             existingUser.setHireDate(updatedUser.getHireDate());
             existingUser.setExperience(updatedUser.getExperience());
             existingUser.setSocialMediaLinks(updatedUser.getSocialMediaLinks());
-    
+
             // Update the role only if it's not null in the updatedUser object
             if (updatedUser.getRole() != null) {
                 // Ensure that the role is already persisted in the database
@@ -149,7 +149,7 @@ public class UserService {
                     throw new RuntimeException("Role not found");
                 }
             }
-    
+
             // Update the ImageData association
             if (updatedUser.getImageData() != null) {
                 // Ensure that the ImageData object is properly managed by Hibernate
@@ -165,14 +165,14 @@ public class UserService {
                     existingUser.getImageData().setImageData(updatedUser.getImageData().getImageData());
                 }
             }
-    
+
             // Save the updated user
             return userRepository.save(existingUser);
         } else {
             throw new RuntimeException("User not found");
         }
     }
-    
+
     public void deleteRole(String roleName) {
         Role role = roleDao.findById(roleName).orElseThrow(null);
         roleDao.delete(role);
@@ -187,6 +187,11 @@ public class UserService {
         for (Formation formation : user.getFormations()) {
             formation.getUsers().remove(user);
             formationRepository.save(formation); // Save the formation to update changes
+        }
+
+        // Delete the associated ImageData record, if exists
+        if (user.getImageData() != null) {
+            imageDataService.deleteImageDataByUser(user.getUserName());
         }
 
         // Finally, delete the user

@@ -59,4 +59,11 @@ public class StorageService {
             return null;
         }
     }
+
+    public void deleteImageDataByUser(String username) {
+        Optional<ImageData> imageDataOptional = repository.findByUserUserName(username);
+        if (imageDataOptional.isPresent()) {
+            repository.delete(imageDataOptional.get());
+        }
+    }
 }

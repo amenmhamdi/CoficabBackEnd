@@ -11,5 +11,7 @@ public interface EvaluationRepository extends JpaRepository<Evaluation, Long> {
 
 
     // Custom query method to find evaluations by formation ID
-    List<Evaluation> findByFormationFid(Long formationId); // Adjusted method name
+    List<Evaluation> findByFormationFid(Long formationId);
+    List<Evaluation> findByCreatedBy(String username);
+
 }

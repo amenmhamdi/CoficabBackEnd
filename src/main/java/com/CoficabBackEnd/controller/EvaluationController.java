@@ -30,7 +30,8 @@ public class EvaluationController {
     private final UserService userService; // Autowire UserService
 
     @Autowired
-    public EvaluationController(EvaluationService evaluationService, EvaluationRepository evaluationRepository, UserService userService) {
+    public EvaluationController(EvaluationService evaluationService, EvaluationRepository evaluationRepository,
+            UserService userService) {
         this.evaluationService = evaluationService;
         this.evaluationRepository = evaluationRepository;
         this.userService = userService; // Assign the autowired UserService
@@ -55,10 +56,11 @@ public class EvaluationController {
         String senderUsername = principal.getName(); // Get the username of the logged-in user
         User sender = new User(); // Create a User object for the sender
         sender.setUserName(senderUsername);
-    
+
         Evaluation result = evaluationService.updateEvaluation(id, updatedEvaluation, sender);
         return ResponseEntity.ok(result);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<Evaluation> getEvaluation(@PathVariable("id") Long id) {
         Evaluation evaluation = evaluationService.getEvaluation(id);
@@ -74,11 +76,10 @@ public class EvaluationController {
         String senderUsername = principal.getName(); // Get the username of the logged-in user
         User sender = new User(); // Create a User object for the sender
         sender.setUserName(senderUsername);
-    
+
         evaluationService.deleteEvaluation(id, sender);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-
 
     @GetMapping("/formation/{formationId}") // Endpoint to get evaluations by formation ID
     public List<Evaluation> getEvaluationsByFormationId(@PathVariable Long formationId) {
@@ -88,5 +89,11 @@ public class EvaluationController {
     @GetMapping("/all") // Endpoint to get all evaluations
     public List<Evaluation> getAllEvaluations() {
         return evaluationService.getAllEvaluations();
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<List<Evaluation>> getEvaluationsByUsername(@PathVariable String username) {
+        List<Evaluation> evaluations = evaluationRepository.findByCreatedBy(username);
+        return new ResponseEntity<>(evaluations, HttpStatus.OK);
     }
 }
