@@ -42,6 +42,7 @@ public class Formation {
 	private boolean visibility = false;
 	private int capacity;
 	private String company;
+    private String theme; // Add theme field
 
 	@ManyToMany
 	@JoinTable(name = "user_formation", joinColumns = @JoinColumn(name = "formation_id"), inverseJoinColumns = @JoinColumn(name = "user_name"))
@@ -56,6 +57,7 @@ public class Formation {
 	@JsonIgnore
 	private Set<Announcement> announcements = new LinkedHashSet<>();
 
+	
 	public String getFormationType() {
 		return formationType;
 	}
@@ -206,6 +208,14 @@ public class Formation {
 
 	public void setVisibility(boolean visibility) {
 		this.visibility = visibility;
+	}
+
+	public String getTheme() {
+		return theme;
+	}
+
+	public void setTheme(String theme) {
+		this.theme = theme;
 	}
 
 }

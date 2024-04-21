@@ -15,10 +15,11 @@ public class Evaluation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String feedback;
     private int rating;
-    private String suggestions;
-    
+    private int response1;
+    private int response2;
+    private int response3;
+    private int response4;
     // New status field
     private String status;
 	private String createdBy;
@@ -28,6 +29,42 @@ public class Evaluation {
     @JoinColumn(name = "formation_id")
     private Formation formation;
 
+    
+
+
+
+    public int getResponse1() {
+        return response1;
+    }
+
+    public void setResponse1(int response1) {
+        this.response1 = response1;
+    }
+
+    public int getResponse2() {
+        return response2;
+    }
+
+    public void setResponse2(int response2) {
+        this.response2 = response2;
+    }
+
+    public int getResponse3() {
+        return response3;
+    }
+
+    public void setResponse3(int response3) {
+        this.response3 = response3;
+    }
+
+    public int getResponse4() {
+        return response4;
+    }
+
+    public void setResponse4(int response4) {
+        this.response4 = response4;
+    }
+
     public Long getId() {
         return id;
     }
@@ -36,14 +73,7 @@ public class Evaluation {
         this.id = id;
     }
 
-    public String getFeedback() {
-        return feedback;
-    }
-
-    public void setFeedback(String feedback) {
-        this.feedback = feedback;
-    }
-
+ 
     public int getRating() {
         return rating;
     }
@@ -52,14 +82,6 @@ public class Evaluation {
         this.rating = rating;
     }
 
-    public String getSuggestions() {
-        return suggestions;
-    }
-
-    public void setSuggestions(String suggestions) {
-        this.suggestions = suggestions;
-    }
-    
     // Getters and setters for status field
     public String getStatus() {
         return status;

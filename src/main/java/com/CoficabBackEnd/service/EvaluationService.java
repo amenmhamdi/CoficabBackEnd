@@ -63,9 +63,7 @@ public class EvaluationService {
                 .orElseThrow(() -> new RuntimeException("Evaluation not found"));
 
         // Update the fields of the existing evaluation
-        existingEvaluation.setFeedback(updatedEvaluation.getFeedback());
         existingEvaluation.setRating(updatedEvaluation.getRating());
-        existingEvaluation.setSuggestions(updatedEvaluation.getSuggestions());
 
         // Calculate status based on the rating
         int rating = updatedEvaluation.getRating();
