@@ -1,6 +1,5 @@
 package com.CoficabBackEnd.service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class FormationCommentService {
     }
 
     public FormationComment addComment(FormationComment comment) {
-        comment.setTimestamp(LocalDateTime.now());
         return formationCommentRepository.save(comment);
     }
 

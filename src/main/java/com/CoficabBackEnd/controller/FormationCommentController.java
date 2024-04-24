@@ -1,5 +1,6 @@
 package com.CoficabBackEnd.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,23 +42,29 @@ public class FormationCommentController {
         try {
             // Retrieve Formation object using FormationRepository
             Formation formation = formationRepository.findById(formationId).orElse(null);
-
+    
             // Retrieve User object using UserRepository
             User user = userRepository.findByUserName(username);
-
+    
             // Check if either Formation or User object is null
             if (formation == null || user == null) {
                 // Handle the case where either Formation or User object is null
                 return ResponseEntity.badRequest().build(); // Return a bad request response
             }
-
+    
             // Set Formation and User objects in the comment
             comment.setFormation(formation);
             comment.setUser(user);
-
+            
+            // Check if timestamp is provided in the request
+            if (comment.getTimestamp() == null) {
+                // If not provided, set it to the current time
+                comment.setTimestamp(LocalDateTime.now());
+            }
+    
             // Save the comment with updated fields
             FormationComment addedComment = this.formationCommentService.addComment(comment);
-
+    
             return ResponseEntity.ok(addedComment);
         } catch (Exception e) {
             // Log the exception for debugging purposes
@@ -66,6 +73,7 @@ public class FormationCommentController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    
 
     // Get formation comment by ID
     @GetMapping("/getComment/{commentId}")
