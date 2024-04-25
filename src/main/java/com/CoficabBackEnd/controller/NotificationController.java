@@ -1,8 +1,6 @@
 package com.CoficabBackEnd.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.CoficabBackEnd.entity.Notification;
 import com.CoficabBackEnd.service.NotificationService;
@@ -25,14 +22,11 @@ import com.CoficabBackEnd.service.NotificationService;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final Map<String, SseEmitter> emitters = new HashMap<>();
 
     @Autowired
     public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
-
-    
 
     @PostMapping("/add")
     public ResponseEntity<Notification> addNotification(@RequestBody Notification notification) {
