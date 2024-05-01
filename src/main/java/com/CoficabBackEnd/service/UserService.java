@@ -1,6 +1,7 @@
 package com.CoficabBackEnd.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -12,11 +13,16 @@ import org.springframework.stereotype.Service;
 import com.CoficabBackEnd.dao.RoleDao;
 import com.CoficabBackEnd.dao.UserDao;
 import com.CoficabBackEnd.entity.Formation;
+import com.CoficabBackEnd.entity.FormationComment;
+import com.CoficabBackEnd.entity.ImageData;
+import com.CoficabBackEnd.entity.Notification;
 import com.CoficabBackEnd.entity.Role;
 import com.CoficabBackEnd.entity.User;
-import com.CoficabBackEnd.repository.EvaluationRepository;
+import com.CoficabBackEnd.repository.FormationCommentRepository;
 import com.CoficabBackEnd.repository.FormationRepository;
+import com.CoficabBackEnd.repository.NotificationRepository;
 import com.CoficabBackEnd.repository.RoleRepository;
+import com.CoficabBackEnd.repository.StorageRepository;
 import com.CoficabBackEnd.repository.UserRepository;
 
 @Service
@@ -26,9 +32,12 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private StorageRepository repository;
+
+    @Autowired
     private FormationRepository formationRepository;
     @Autowired
-    private EvaluationRepository evaluationRepository;
+    private NotificationRepository notificationRepository;
     @Autowired
     private RoleRepository roleRepository;
 
@@ -42,7 +51,7 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private StorageService imageDataService; // Inject ImageDataService
+    private FormationCommentRepository formationCommentRepository;
 
     public void initRoleAndUser() {
         Role adminRole = new Role();
@@ -183,16 +192,27 @@ public class UserService {
         User user = userRepository.findById(userName)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Delete notifications sent by the user
+        List<Notification> sentNotifications = notificationRepository.findBySender_UserName(userName);
+        notificationRepository.deleteAll(sentNotifications);
+
+        // Delete notifications received by the user
+        List<Notification> receivedNotifications = notificationRepository.findByReceiver_UserName(userName);
+        notificationRepository.deleteAll(receivedNotifications);
+
+        // Delete formation comments created by the user
+        List<FormationComment> userFormationComments = formationCommentRepository.findByUserUserName(userName);
+        formationCommentRepository.deleteAll(userFormationComments);
+
         // Remove the user from all associated formations
         for (Formation formation : user.getFormations()) {
             formation.getUsers().remove(user);
-            formationRepository.save(formation); // Save the formation to update changes
+            formationRepository.save(formation);
         }
 
         // Delete the associated ImageData record, if exists
-        if (user.getImageData() != null) {
-            imageDataService.deleteImageDataByUser(user.getUserName());
-        }
+        Optional<ImageData> imageDataOptional = repository.findByUserUserName(userName);
+        imageDataOptional.ifPresent(imageData -> repository.delete(imageData));
 
         // Finally, delete the user
         userRepository.delete(user);
@@ -242,5 +262,46 @@ public class UserService {
     public boolean isEmailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public void changePassword(String username, String newPassword, String confirmPassword) {
+        // Retrieve the user from the database by username
+        User user = userRepository.findByUserName(username);
+    
+        // Check if the user exists
+        if (user != null) {
+            // Check if the new password and the confirmed password match
+            if (newPassword.equals(confirmPassword)) {
+                // Encode the new password before saving it
+                String encodedNewPassword = passwordEncoder.encode(newPassword);
+                // Set the new encoded password
+                user.setUserPassword(encodedNewPassword);
+                // Save the updated user with the new password
+                userRepository.save(user);
+            } else {
+                throw new RuntimeException("New password and confirm password do not match");
+            }
+        } else {
+            throw new RuntimeException("User not found");
+        }
+    }
+    
+
+    public boolean verifyOldPassword(String username, String oldPassword) {
+        // Retrieve the user from the database by username
+        User user = userRepository.findByUserName(username);
+    
+        // Check if the user exists
+        if (user != null) {
+            // Verify if the old password matches the stored password
+            return passwordEncoder.matches(oldPassword, user.getUserPassword());
+        } else {
+            // User not found, return false
+            return false;
+        }
+    }
+    
+    
+    
+    
 
 }

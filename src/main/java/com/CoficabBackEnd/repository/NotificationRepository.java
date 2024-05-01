@@ -15,4 +15,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     // Custom query method to find notifications by receiver username
     List<Notification> findByReceiver_UserName(String userName);
+
+    
 }

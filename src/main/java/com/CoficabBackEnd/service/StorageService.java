@@ -19,9 +19,8 @@ public class StorageService {
     @Autowired
     private StorageRepository repository;
 
-        @Autowired
+    @Autowired
     private UserRepository userRepository; // Assuming you have a UserRepository
-
 
     public String uploadImageWithUsername(String username, MultipartFile file) throws IOException {
         // Get the user by username

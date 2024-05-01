@@ -12,4 +12,5 @@ public interface FormationCommentRepository extends JpaRepository<FormationComme
     List<FormationComment> findByFormationFid(Long fid);
     List<FormationComment> findByUserUserName(String userName);
     List<FormationComment> findByFormationFidIn(List<Long> fids);
+    
 }

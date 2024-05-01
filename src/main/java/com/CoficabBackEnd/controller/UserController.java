@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.CoficabBackEnd.dao.ChangePasswordRequest;
 import com.CoficabBackEnd.entity.User;
 import com.CoficabBackEnd.service.UserService;
 
@@ -126,5 +127,30 @@ public class UserController {
         boolean emailExists = userService.isEmailExists(email);
         return ResponseEntity.ok(emailExists);
     }
-
+    @PutMapping("/changePassword/{username}")
+    public ResponseEntity<String> changePassword(@PathVariable("username") String username,
+            @RequestBody ChangePasswordRequest changePasswordRequest) {
+        try {
+            userService.changePassword(username,
+                    changePasswordRequest.getNewPassword(),
+                    changePasswordRequest.getConfirmPassword());
+            return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping("/verifyOldPassword/{username}")
+    public ResponseEntity<String> verifyOldPassword(@PathVariable("username") String username,
+                                                    @RequestBody String oldPassword) {
+        boolean isOldPasswordCorrect = userService.verifyOldPassword(username, oldPassword);
+        if (isOldPasswordCorrect) {
+            return new ResponseEntity<>("Old password verified successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Old password is incorrect", HttpStatus.BAD_REQUEST);
+        }
+    }
+    
+    
+    
 }
