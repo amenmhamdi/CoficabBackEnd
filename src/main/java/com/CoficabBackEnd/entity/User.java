@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
@@ -50,11 +51,10 @@ public class User {
     private String employeeId = generateEmployeeId();
     private String hireDate;
     private String experience;
-    
+
     @OneToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     private ImageData imageData;
-    
 
     private String socialMediaLinks;
 
@@ -66,7 +66,10 @@ public class User {
     @JsonIgnore
     private Set<Formation> formations = new LinkedHashSet<>();
 
-    
+    @JsonIgnore
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserCV cv;
+
     public Set<Formation> getFormations() {
         return formations;
     }
@@ -244,7 +247,11 @@ public class User {
     public void setSocialMediaLinks(String socialMediaLinks) {
         this.socialMediaLinks = socialMediaLinks;
     }
+    public UserCV getCv() {
+        return cv;
+    }
 
-    
-
+    public void setCv(UserCV cv) {
+        this.cv = cv;
+    }
 }
