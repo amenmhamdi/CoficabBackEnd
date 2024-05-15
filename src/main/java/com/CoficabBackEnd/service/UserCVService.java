@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,51 +32,58 @@ public class UserCVService {
         try {
             User user = userRepository.findByUserName(username);
             if (user != null) {
+                // Calculate file size
+                long fileSize = file.getSize();
+
                 UserCV existingCV = user.getCv();
                 if (existingCV != null) {
                     // Delete the existing CV file
-                    deleteCVFile(existingCV.getFileName());
-    
+                    deleteCVFile(username, existingCV.getFileName());
+
                     // Update the existing CV record in the database
                     existingCV.setFileName(file.getOriginalFilename());
+                    existingCV.setFileSize(fileSize); // Set the file size
+                    existingCV.setTimestamp(LocalDateTime.now()); // Set the timestamp to the current time
                     userCVRepository.save(existingCV);
                 } else {
                     // Check if CV already exists in the database
                     UserCV existingUserCV = userCVRepository.findByUser(user);
                     if (existingUserCV != null) {
-                        // If CV exists, update its filename
+                        // If CV exists, update its filename and size
                         existingUserCV.setFileName(file.getOriginalFilename());
+                        existingUserCV.setFileSize(fileSize); // Set the file size
+                        existingUserCV.setTimestamp(LocalDateTime.now()); // Set the timestamp to the current time
                         userCVRepository.save(existingUserCV);
                     } else {
                         // Create a new CV entry in the database
                         UserCV userCV = new UserCV();
                         userCV.setUser(user);
                         userCV.setFileName(file.getOriginalFilename());
+                        userCV.setFileSize(fileSize); // Set the file size
+                        userCV.setTimestamp(LocalDateTime.now()); // Set the timestamp to the current time
                         userCVRepository.save(userCV);
                     }
                 }
-    
-                // Create the directory if it doesn't exist
-                Path directory = Paths.get(CV_UPLOAD_DIR);
-                if (!Files.exists(directory)) {
-                    Files.createDirectories(directory);
+
+                // Create a directory for the user if it doesn't exist
+                Path userDirectory = Paths.get(CV_UPLOAD_DIR, username);
+                if (!Files.exists(userDirectory)) {
+                    Files.createDirectories(userDirectory);
                 }
-    
-                // Save the CV file to the specified directory
+
+                // Save the CV file to the user's directory
                 byte[] bytes = file.getBytes();
-                Path path = Paths.get(directory.toString(), file.getOriginalFilename());
-                Files.write(path, bytes);
+                Path filePath = Paths.get(userDirectory.toString(), file.getOriginalFilename());
+                Files.write(filePath, bytes);
             }
         } catch (IOException e) {
             e.printStackTrace();
             // Handle file storage exception
         }
     }
-    
-    
 
-    private void deleteCVFile(String fileName) throws IOException {
-        Path path = Paths.get(CV_UPLOAD_DIR, fileName);
+    private void deleteCVFile(String username, String fileName) throws IOException {
+        Path path = Paths.get(CV_UPLOAD_DIR, username, fileName);
         if (Files.exists(path)) {
             Files.delete(path);
         }
@@ -86,10 +94,10 @@ public class UserCVService {
         UserCV userCV = userCVRepository.findById(id).orElse(null);
         if (userCV != null) {
             String fileName = userCV.getFileName();
-            Path filePath = Paths.get(CV_UPLOAD_DIR, fileName);
+            String username = userCV.getUser().getUserName();
             try {
                 // Delete the file from the file system
-                Files.deleteIfExists(filePath);
+                deleteCVFile(username, fileName);
                 // Delete the entry from the database
                 userCVRepository.delete(userCV);
             } catch (IOException e) {
@@ -104,10 +112,19 @@ public class UserCVService {
         UserCV userCV = userCVRepository.findById(id).orElse(null);
         if (userCV != null) {
             String fileName = userCV.getFileName();
-            Path filePath = Paths.get(CV_UPLOAD_DIR, fileName);
+            String username = userCV.getUser().getUserName(); // Get the username
+            Path filePath = Paths.get(CV_UPLOAD_DIR, username, fileName); // Include username in the file path
             return Files.readAllBytes(filePath);
         }
         return null;
+    }
+
+    public List<UserCV> getAllCVs() {
+        return userCVRepository.findAll();
+    }
+
+    public List<Object[]> getAllCVsWithUsername() {
+        return userCVRepository.findAllWithUsername();
     }
 
     public UserCV getCVById(Long id) {

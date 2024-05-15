@@ -41,34 +41,31 @@ public class UserCVController {
         }
     }
 
-    // Endpoint to fetch the actual CV file content by ID
     @GetMapping("/file/{id}")
     public ResponseEntity<Resource> getCVFile(@PathVariable("id") Long id) {
         try {
             byte[] fileContent = userCVService.getCVFileContent(id);
             if (fileContent != null) {
                 ByteArrayResource resource = new ByteArrayResource(fileContent);
-
+    
                 // Get the file name from the database
                 UserCV userCV = userCVService.getCVById(id);
                 String filename = userCV.getFileName();
-
+    
                 // Determine the media type based on the file extension
                 MediaType mediaType;
                 if (filename.endsWith(".pdf")) {
                     mediaType = MediaType.APPLICATION_PDF;
-                } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-                    mediaType = MediaType.IMAGE_JPEG;
-                } else if (filename.endsWith(".png")) {
-                    mediaType = MediaType.IMAGE_PNG;
+                } else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg") || filename.endsWith(".png")) {
+                    mediaType = MediaType.IMAGE_JPEG; // Change to IMAGE_JPEG for image files
                 } else {
                     // Default to octet-stream for unknown file types
                     mediaType = MediaType.APPLICATION_OCTET_STREAM;
                 }
-
+    
                 HttpHeaders headers = new HttpHeaders();
-                headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
-
+                headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + filename); // Change to inline for images
+    
                 return ResponseEntity.ok()
                         .headers(headers)
                         .contentLength(fileContent.length)
@@ -82,7 +79,7 @@ public class UserCVController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteCV(@PathVariable("id") Long id) {
         try {
@@ -109,5 +106,14 @@ public class UserCVController {
     public ResponseEntity<List<UserCV>> getCVsByUsername(@PathVariable("username") String username) {
         List<UserCV> cvs = userCVService.getCVsByUsername(username);
         return new ResponseEntity<>(cvs, HttpStatus.OK);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<UserCV>> getAllCVs() {
+        List<UserCV> cvs = userCVService.getAllCVs();
+        return new ResponseEntity<>(cvs, HttpStatus.OK);
+    }
+    @GetMapping("/all-with-username")
+    public List<Object[]> getAllCVsWithUsername() {
+        return userCVService.getAllCVsWithUsername();
     }
 }
