@@ -9,10 +9,9 @@ import org.springframework.stereotype.Repository;
 import com.StoryCraftBackend.entity.Role;
 
 @Repository
-public interface RoleDao extends CrudRepository<Role, String> {
+public interface RoleDao extends CrudRepository<Role, Long> {
     Optional<Role> findByRoleName(String roleName);
-    // Add additional methods as needed
-    Optional<Role> findByRoleDescription(String roleDescription);
+    Optional<Role> findByRoleDescription(String roleDescription); // Corrected method
     List<Role> findByRoleNameContaining(String partialRoleName);
 
     // You can add more methods based on your requirements

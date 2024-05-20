@@ -10,10 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.StoryCraftBackend.entity.Role;
 import com.StoryCraftBackend.entity.User;
-import com.StoryCraftBackend.entity.UserRole;
 import com.StoryCraftBackend.repository.RoleRepository;
 import com.StoryCraftBackend.repository.UserRepository;
-import com.StoryCraftBackend.repository.UserRoleRepository;
 
 @Service
 public class RoleService {
@@ -24,43 +22,51 @@ public class RoleService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-
-    // Create a new role
     public Role createNewRole(Role role) {
+        // Check if role with the same name already exists
+        if (roleRepository.existsByRoleName(role.getRoleName())) {
+            throw new RuntimeException("Role with the same name already exists");
+        }
+        // If not, proceed with creating the role
         return roleRepository.save(role);
     }
 
-    @Transactional
-    public Role updateRoleDescription(String roleName, Role newRoleData) {
-        // Check if the role with roleName exists
-        Role existingRole = roleRepository.findById(roleName)
+    public Role updateRoleDescription(Long roleId, Role newRoleData) {
+        Role existingRole = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
-
+    
+        // Check if the updated role name conflicts with existing roles
+        if (!existingRole.getRoleName().equals(newRoleData.getRoleName())) {
+            if (roleRepository.existsByRoleName(newRoleData.getRoleName())) {
+                throw new RuntimeException("Role with the updated name already exists");
+            }
+            existingRole.setRoleName(newRoleData.getRoleName());
+        }
+    
         // Update role description
         existingRole.setRoleDescription(newRoleData.getRoleDescription());
-
+    
         // Save the updated role
         return roleRepository.save(existingRole);
     }
+    
 
     @Transactional
-    public void deleteRole(String roleName) {
-        Role role = roleRepository.findById(roleName)
+    public void deleteRole(Long roleId) {
+        Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
-        // Retrieve UserRole associations with this role
-        List<UserRole> userRoles = userRoleRepository.findByRole(role);
+        // Retrieve users associated with this role
+        List<User> usersWithRole = userRepository.findByRole(role);
 
-        // Remove role associations from users and set to default role if necessary
-        Role defaultRole = roleRepository.findById("Reader")
+        // Find default role
+        Role defaultRole = roleRepository.findByRoleName("Reader")
                 .orElseThrow(() -> new RuntimeException("Default role 'Reader' not found"));
 
-        for (UserRole userRole : userRoles) {
-            User user = userRole.getUser();
-            userRoleRepository.delete(userRole);
-            userRoleRepository.save(new UserRole(user, defaultRole));
+        // Update users to default role
+        for (User user : usersWithRole) {
+            user.setRole(defaultRole);
+            userRepository.save(user);
         }
 
         // Finally, delete the role
@@ -72,8 +78,13 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
+    // Find a role by its ID
+    public Optional<Role> getRoleById(Long roleId) {
+        return roleRepository.findById(roleId);
+    }
+
     // Find a role by its name
     public Optional<Role> getRoleByName(String roleName) {
-        return roleRepository.findById(roleName);
+        return roleRepository.findByRoleName(roleName);
     }
 }

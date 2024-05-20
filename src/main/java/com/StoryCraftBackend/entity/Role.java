@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
@@ -21,10 +23,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class Role {
 
     @Id
-    @Column(name = "role_name", nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "role_id")
+    private Long roleId;
+
+    @Column(name = "role_name", nullable = false, unique = true) // Ensure roleName is unique
     private String roleName;
 
-    @Column(name = "role_description", nullable = false)
+    @Column(name = "role_description")
     private String roleDescription;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -35,18 +41,25 @@ public class Role {
 
     @JsonIgnore
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
-    private Set<UserRole> userRoles;
+    private Set<User> users;
 
     public Role() {
     }
 
-    public Role(String roleName, String roleDescription, Role parentRole) {
+    public Role(String roleName, String roleDescription) {
         this.roleName = roleName;
-        this.roleDescription = roleDescription;
-        this.createdAt = LocalDateTime.now();
+        this.roleDescription = roleDescription != null ? roleDescription : "";
     }
 
     // Getters and setters
+
+    public Long getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(Long roleId) {
+        this.roleId = roleId;
+    }
 
     public String getRoleName() {
         return roleName;
@@ -90,11 +103,11 @@ public class Role {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public Set<UserRole> getUserRoles() {
-        return userRoles;
+    public Set<User> getUsers() {
+        return users;
     }
 
-    public void setUserRoles(Set<UserRole> userRoles) {
-        this.userRoles = userRoles;
+    public void setUsers(Set<User> users) {
+        this.users = users;
     }
 }

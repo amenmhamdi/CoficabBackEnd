@@ -1,13 +1,13 @@
 package com.StoryCraftBackend.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.hibernate.annotations.common.util.impl.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +25,9 @@ import org.springframework.stereotype.Service;
 import com.StoryCraftBackend.dao.UserDao;
 import com.StoryCraftBackend.entity.JwtRequest;
 import com.StoryCraftBackend.entity.JwtResponse;
+import com.StoryCraftBackend.entity.Role;
 import com.StoryCraftBackend.entity.User;
-import com.StoryCraftBackend.entity.UserRole;
 import com.StoryCraftBackend.repository.UserRepository;
-import com.StoryCraftBackend.repository.UserRoleRepository;
 import com.StoryCraftBackend.util.JwtUtil;
 
 @Service
@@ -45,9 +44,6 @@ public class JwtService implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserRoleRepository userRoleRepository;
 
     @Autowired
     private EmailService emailService;
@@ -86,10 +82,12 @@ public class JwtService implements UserDetailsService {
     }
 
     private Set<SimpleGrantedAuthority> getAuthorities(User user) {
-        List<UserRole> userRoles = userRoleRepository.findByUser(user);
-        return userRoles.stream()
-                .map(userRole -> new SimpleGrantedAuthority("ROLE_" + userRole.getRole().getRoleName()))
-                .collect(Collectors.toSet());
+        Role role = user.getRole();
+        if (role != null) {
+            return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role.getRoleName()));
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     private void authenticate(String userName, String userPassword) throws Exception {

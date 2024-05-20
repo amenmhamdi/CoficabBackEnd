@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.StoryCraftBackend.entity.Role;
 import com.StoryCraftBackend.entity.User;
 
 public interface UserRepository extends JpaRepository<User, String> {
+    List<User> findByRole(Role role);
+
 
 	public User findByUserName(String userName);
 

@@ -1,12 +1,12 @@
 package com.StoryCraftBackend.entity;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -66,9 +66,9 @@ public class User {
     @JsonIgnore
     private ImageData imageData;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<UserRole> userRoles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
     // Getters and setters if not using Lombok
     public String getResetToken() {
@@ -271,11 +271,11 @@ public class User {
         this.membershipLevel = membershipLevel;
     }
 
-    public Set<UserRole> getUserRoles() {
-        return userRoles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setUserRoles(Set<UserRole> userRoles) {
-        this.userRoles = userRoles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

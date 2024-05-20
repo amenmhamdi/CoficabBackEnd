@@ -41,7 +41,8 @@ public class UserController {
     }
 
     @PutMapping("/assignRole/{username}/{roleName}")
-    public ResponseEntity<String> assignRole(@PathVariable("username") String username, @PathVariable("roleName") String roleName) {
+    public ResponseEntity<String> assignRole(@PathVariable("username") String username,
+            @PathVariable("roleName") String roleName) {
         try {
             userService.assignRole(username, roleName);
             return new ResponseEntity<>("Role assigned successfully", HttpStatus.OK);
@@ -125,7 +126,7 @@ public class UserController {
 
     @PostMapping("/verifyOldPassword/{username}")
     public ResponseEntity<String> verifyOldPassword(@PathVariable("username") String username,
-                                                    @RequestBody String oldPassword) {
+            @RequestBody String oldPassword) {
         boolean isOldPasswordCorrect = userService.verifyOldPassword(username, oldPassword);
         if (isOldPasswordCorrect) {
             return new ResponseEntity<>("Old password verified successfully", HttpStatus.OK);

@@ -11,16 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.StoryCraftBackend.dao.RoleDao;
-import com.StoryCraftBackend.dao.UserDao;
 import com.StoryCraftBackend.entity.ImageData;
 import com.StoryCraftBackend.entity.Role;
 import com.StoryCraftBackend.entity.User;
-import com.StoryCraftBackend.entity.UserRole;
 import com.StoryCraftBackend.repository.RoleRepository;
 import com.StoryCraftBackend.repository.StorageRepository;
 import com.StoryCraftBackend.repository.UserRepository;
-import com.StoryCraftBackend.repository.UserRoleRepository;
 
 @Service
 public class UserService {
@@ -35,63 +31,55 @@ public class UserService {
     private RoleRepository roleRepository;
 
     @Autowired
-    private UserDao userDao;
-
-    @Autowired
-    private RoleDao roleDao;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserRoleRepository userRoleRepository;
 
     @PostConstruct
     public void initRoleAndUser() {
-        Role adminRole = new Role();
-        adminRole.setRoleName("Admin");
-        adminRole.setRoleDescription("Administrator with full access");
-        adminRole.setCreatedAt(LocalDateTime.now());
-        adminRole.setUpdatedAt(LocalDateTime.now());
-        roleRepository.save(adminRole);
+        if (roleRepository.count() == 0) { // Check if roles exist in the database
 
-        Role editorRole = new Role();
-        editorRole.setRoleName("Editor");
-        editorRole.setRoleDescription("User with editorial responsibilities");
-        editorRole.setCreatedAt(LocalDateTime.now());
-        roleRepository.save(editorRole);
+            Role adminRole = new Role();
+            adminRole.setRoleName("Admin");
+            adminRole.setRoleDescription("Administrator with full access");
+            adminRole.setCreatedAt(LocalDateTime.now());
+            adminRole.setUpdatedAt(LocalDateTime.now());
+            roleRepository.save(adminRole);
 
-        Role moderateRole = new Role();
-        moderateRole.setRoleName("Moderate");
-        moderateRole.setRoleDescription("User with the ability to moderate user-generated content and community interactions");
-        moderateRole.setCreatedAt(LocalDateTime.now());
-        roleRepository.save(moderateRole);
+            Role editorRole = new Role();
+            editorRole.setRoleName("Editor");
+            editorRole.setRoleDescription("User with editorial responsibilities");
+            editorRole.setCreatedAt(LocalDateTime.now());
+            roleRepository.save(editorRole);
 
-        Role readerRole = new Role();
-        readerRole.setRoleName("Reader");
-        readerRole.setRoleDescription("Default role for new users");
-        readerRole.setCreatedAt(LocalDateTime.now());
-        readerRole.setUpdatedAt(LocalDateTime.now());
-        roleRepository.save(readerRole);
+            Role moderateRole = new Role();
+            moderateRole.setRoleName("Moderate");
+            moderateRole.setRoleDescription(
+                    "User with the ability to moderate user-generated content and community interactions");
+            moderateRole.setCreatedAt(LocalDateTime.now());
+            roleRepository.save(moderateRole);
 
-        Role writerRole = new Role();
-        writerRole.setRoleName("Writer");
-        writerRole.setRoleDescription("User with the ability to write and publish stories");
-        writerRole.setCreatedAt(LocalDateTime.now());
-        roleRepository.save(writerRole);
-    
+            Role readerRole = new Role();
+            readerRole.setRoleName("Reader");
+            readerRole.setRoleDescription("Default role for new users");
+            readerRole.setCreatedAt(LocalDateTime.now());
+            readerRole.setUpdatedAt(LocalDateTime.now());
+            roleRepository.save(readerRole);
 
-        User adminUser = new User();
-        adminUser.setUserName("admin123");
-        adminUser.setUserPassword(getEncodedPassword("admin@pass"));
-        adminUser.setUserFirstName("admin");
-        adminUser.setEmail("admin@example.com");
-        adminUser.setUserLastName("admin");
-        adminUser.setEmailVerified(true);
-        userRepository.save(adminUser);
+            Role writerRole = new Role();
+            writerRole.setRoleName("Writer");
+            writerRole.setRoleDescription("User with the ability to write and publish stories");
+            writerRole.setCreatedAt(LocalDateTime.now());
+            roleRepository.save(writerRole);
 
-        UserRole userRole = new UserRole(adminUser, adminRole);
-        userRoleRepository.save(userRole);
+            User adminUser = new User();
+            adminUser.setUserName("admin123");
+            adminUser.setUserPassword(getEncodedPassword("admin@pass"));
+            adminUser.setUserFirstName("admin");
+            adminUser.setEmail("admin@example.com");
+            adminUser.setUserLastName("admin");
+            adminUser.setEmailVerified(true);
+            adminUser.setRole(adminRole);
+            userRepository.save(adminUser);
+        }
     }
 
     public User registerNewUser(User user) {
@@ -104,15 +92,12 @@ public class UserService {
         user.setCreatedDate(LocalDateTime.now());
         user.setActive(true);
 
-        User savedUser = userDao.save(user);
-
-        Role defaultRole = roleDao.findById("Reader")
+        Role defaultRole = roleRepository.findByRoleName("Reader")
                 .orElseThrow(() -> new RuntimeException("Default role not found"));
 
-        UserRole userRole = new UserRole(savedUser, defaultRole);
-        userRoleRepository.save(userRole);
+        user.setRole(defaultRole);
 
-        return savedUser;
+        return userRepository.save(user);
     }
 
     public void assignRole(String username, String roleName) {
@@ -120,18 +105,12 @@ public class UserService {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-    
-        Role role = roleDao.findByRoleName(roleName)
+
+        Role role = roleRepository.findByRoleName(roleName)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
-    
-        // Check if the user already has the specified role
-        UserRole existingUserRole = userRoleRepository.findByUserAndRole(user, role);
-        if (existingUserRole == null) {
-            // Create a new UserRole record
-            UserRole userRole = new UserRole(user, role);
-            userRoleRepository.save(userRole);
-        }
-        // If the UserRole record already exists, no need to do anything
+
+        user.setRole(role);
+        userRepository.save(user);
     }
 
     public String getEncodedPassword(String password) {
@@ -197,11 +176,6 @@ public class UserService {
         }
     }
 
-    public void deleteRole(String roleName) {
-        Role role = roleDao.findById(roleName).orElseThrow(() -> new RuntimeException("Role not found"));
-        roleDao.delete(role);
-    }
-
     @Transactional
     public void deleteUser(String userName) {
         User user = userRepository.findById(userName)
@@ -211,12 +185,19 @@ public class UserService {
         Optional<ImageData> imageDataOptional = repository.findByUserUserName(userName);
         imageDataOptional.ifPresent(imageData -> repository.delete(imageData));
 
-        // Delete associated UserRole records
-        List<UserRole> userRoles = userRoleRepository.findByUser(user);
-        userRoleRepository.deleteAll(userRoles);
-
         // Finally, delete the user
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public void deleteRole(String roleName) {
+        Optional<Role> roleOptional = roleRepository.findByRoleName(roleName);
+        if (roleOptional.isPresent()) {
+            Role role = roleOptional.get();
+            roleRepository.delete(role);
+        } else {
+            throw new RuntimeException("Role not found");
+        }
     }
 
     public boolean isEmailExists(String email) {
