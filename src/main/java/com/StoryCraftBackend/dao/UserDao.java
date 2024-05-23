@@ -7,4 +7,6 @@ import com.StoryCraftBackend.entity.User;
 
 @Repository
 public interface UserDao extends CrudRepository<User, String> {
+    Boolean existsByUserName(String userName);
+
 }

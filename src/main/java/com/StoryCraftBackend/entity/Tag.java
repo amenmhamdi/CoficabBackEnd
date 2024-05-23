@@ -11,17 +11,10 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "tags")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class Tag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,9 +22,11 @@ public class Tag {
     private String name; // Name of the tag
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("tags") // Ignore the characters field when serializing
     private Set<Story> stories = new HashSet<>();
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("tags") // Ignore the characters field when serializing
     private Set<Character> characters = new HashSet<>();
 
     // Getters and setters if not using Lombok
@@ -67,5 +62,4 @@ public class Tag {
         this.characters = characters;
     }
 
-    
 }

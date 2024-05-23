@@ -10,15 +10,18 @@ import com.StoryCraftBackend.entity.User;
 public interface UserRepository extends JpaRepository<User, String> {
     List<User> findByRole(Role role);
 
+    User findByUserName(String userName);
 
-	public User findByUserName(String userName);
+    List<User> findByUserNameIn(List<String> userNames);
 
-	List<User> findByUserNameIn(List<String> userNames);
+    List<User> findByEmail(String email);
 
-	List<User> findByEmail(String email);
+    User findByResetToken(String resetToken);
 
-	public User findByResetToken(String resetToken);
+    boolean existsByEmail(String email);
 
-	boolean existsByEmail(String email);
+    boolean existsByPhone(String phone);
+
+
 
 }

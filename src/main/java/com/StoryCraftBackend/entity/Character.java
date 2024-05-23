@@ -38,7 +38,7 @@ public class Character {
     private String avatar;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "story_id")
+    @JoinColumn(name = "story_id", nullable = true)
     @JsonIgnore
     private Story story;
 

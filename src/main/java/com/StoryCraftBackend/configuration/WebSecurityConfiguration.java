@@ -44,10 +44,10 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         httpSecurity.cors(withDefaults());
         httpSecurity.csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests -> requests
-                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword", "/sendVerificationCode", "/verifyVerificationCode").permitAll()
+                        .antMatchers("/authenticate", "/user/registerNewUser", "/user/getUser", "/user/getallusers","/user/update", "user/roles", "/requestPasswordReset", "/resetPassword", "/sendVerificationCode", "/verifyVerificationCode").permitAll()
                         .antMatchers(HttpHeaders.ALLOW).permitAll()
                         .antMatchers("/users").permitAll() // Exclude /users from authentication
-                        .antMatchers(HttpMethod.GET, "/user/checkEmailExists/**").permitAll() // Permit GET requests to checkEmailExists
+                        .antMatchers(HttpMethod.GET, "/user/checkEmailExists/**", "/user/checkUsernameExists/**","/user/phone-exists/**").permitAll() // Permit GET requests to checkEmailExists
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

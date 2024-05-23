@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.StoryCraftBackend.dao.UserDao;
 import com.StoryCraftBackend.entity.ImageData;
 import com.StoryCraftBackend.entity.Role;
 import com.StoryCraftBackend.entity.User;
@@ -26,6 +27,9 @@ public class UserService {
 
     @Autowired
     private StorageRepository repository;
+    
+    @Autowired
+    private UserDao userDao;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -204,6 +208,14 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    public boolean isPhoneExists(String phone) {
+        return userRepository.existsByPhone(phone);
+    }
+
+  
+    public boolean isUsernameExists(String username) {
+        return userDao.existsByUserName(username);
+    }
     public void changePassword(String username, String newPassword, String confirmPassword) {
         // Retrieve the user from the database by username
         User user = userRepository.findByUserName(username);

@@ -47,6 +47,8 @@ public class CharacterService {
             Story story = storyRepository.findById(character.getStory().getId())
                     .orElseThrow(() -> new IllegalArgumentException("Story not found"));
             character.setStory(story);
+        } else {
+            character.setStory(null);  // Explicitly set story to null if it's not provided
         }
 
         return characterRepository.save(character);

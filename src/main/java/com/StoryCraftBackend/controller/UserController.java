@@ -111,6 +111,17 @@ public class UserController {
         return ResponseEntity.ok(emailExists);
     }
 
+    @GetMapping("/phone-exists/{phone}")
+    public ResponseEntity<Boolean> isPhoneExists(@PathVariable String phone) {
+        boolean exists = userService.isPhoneExists(phone);
+        return ResponseEntity.ok(exists);
+    }
+
+    @GetMapping("/checkUsernameExists/{username}")
+    public ResponseEntity<Boolean> checkUsernameExists(@PathVariable String username) {
+        boolean usernameExists = userService.isUsernameExists(username);
+        return ResponseEntity.ok(usernameExists);
+    }
     @PutMapping("/changePassword/{username}")
     public ResponseEntity<String> changePassword(@PathVariable("username") String username,
             @RequestBody ChangePasswordRequest changePasswordRequest) {
